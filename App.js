@@ -1,30 +1,53 @@
-import React from 'react';
-import {ActivityIndicator, StatusBar, View} from 'react-native';
+import React, {useRef} from 'react';
+import {
+  ActivityIndicator,
+  StatusBar,
+  DrawerLayoutAndroid,
+  View,
+  TouchableWithoutFeedback,
+  Button,
+} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import LoginScreen from './screens/LoginScreen';
+import WelcomeScreen from './screens/WelcomeScreen';
+import {IconButton, Text} from 'react-native-paper';
 
-const stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator();
 
-const App = () => {
+const App = ({navigation}) => {
+  const drawer = useRef(null);
   return (
     <>
       <StatusBar animated={true} backgroundColor="#61dafb" />
       <NavigationContainer>
-        <stack.Navigator>
-          <stack.Screen
+        <Stack.Navigator initialRouteName='LoginScreen'>
+          <Stack.Screen
             name="Login"
             component={LoginScreen}
             options={{
-              title: "",
+              title: '',
               headerStyle: {
-                backgroundColor: "#61dafb",
+                backgroundColor: '#61dafb',
               },
-              headerShown: false
+              headerShown: false,
             }}
           />
-        </stack.Navigator>
+          <Stack.Screen
+            name="Welcome"
+            component={WelcomeScreen}
+            options={{
+              title: 'Welcome',
+              headerStyle: {
+                backgroundColor: '#61dafb',
+              },
+              headerTintColor: '#fff',
+              headerTitleAlign: 'center',
+              headerShown: false,
+            }}
+          />
+        </Stack.Navigator>
       </NavigationContainer>
     </>
   );

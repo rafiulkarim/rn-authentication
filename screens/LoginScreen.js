@@ -1,12 +1,19 @@
 import React, {useState} from 'react';
-import {View, StyleSheet, TextInput, ActivityIndicator} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  ActivityIndicator,
+  Keyboard,
+} from 'react-native';
 import {Text, Button} from 'react-native-paper';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
 import {errorToast, successToast} from '../components/Toaster';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // validation
-import {Formik, Form, Field} from 'formik';
+import {Formik} from 'formik';
 import * as Yup from 'yup';
 
 const LoginSchema = Yup.object().shape({
@@ -17,20 +24,24 @@ const LoginSchema = Yup.object().shape({
   // .matches('^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$', 'Test'),
 });
 
-const LoginScreen = () => {
+const LoginScreen = ({ navigation }) => {
+  Keyboard.dismiss();
   const [loading, setLoading] = useState(false);
   const authenticate = values => {
     setLoading(true);
     console.log(values);
     axios
-      .post('http://192.168.2.212/authentication/public/api/v1/signin', {
+      .post('http://192.168.80.244/authentication/public/api/v1/signin', {
         username: values.email,
         password: values.password,
       })
       .then(response => {
         setTimeout(() => {
           if (response.status == 200) {
+            AsyncStorage.setItem('token', response.data.data.token);
+            AsyncStorage.getItem('token').then(result => console.log(result));
             successToast('Successfully Login ...');
+            navigation.replace('Welcome')
           } else {
             errorToast('Email or Password was wrong');
           }
@@ -49,7 +60,7 @@ const LoginScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerTitle}>Login</Text>
+        <Text style={styles.headerTitle}>Sign in</Text>
       </View>
       <View style={{paddingTop: 20}}>
         <Formik
@@ -83,6 +94,7 @@ const LoginScreen = () => {
                   onBlur={handleBlur('email')}
                   placeholder="Enter your valid Email"
                   autoCapitalize="none"
+                  // onSubmitEditing={Keyboard.dismiss}
                   // keyboardType="numeric"
                 />
                 {touched.email && errors.email && (
@@ -98,6 +110,7 @@ const LoginScreen = () => {
                   onChangeText={handleChange('password')}
                   onBlur={handleBlur('password')}
                   placeholder="Enter your password"
+                  // onSubmitEditing={Keyboard.dismiss}
                   // keyboardType="numeric"
                 />
                 {touched.password && errors.password && (
@@ -122,6 +135,20 @@ const LoginScreen = () => {
             </View>
           )}
         </Formik>
+        <View style={{margin: 10}}>
+          <View
+            style={{marginTop: 40, backgroundColor: '#fff', borderRadius: 10}}>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: 20,
+                paddingVertical: 10,
+                textDecorationLine: 'underline',
+              }}>
+              SignUp
+            </Text>
+          </View>
+        </View>
       </View>
       <Toast bottomOffset={20} />
     </View>
@@ -136,12 +163,12 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: '#61dafb',
-    borderBottomRightRadius: 40,
-    borderBottomStartRadius: 40,
+    borderBottomRightRadius: 50,
+    borderBottomStartRadius: 50,
   },
   headerTitle: {
     fontSize: 30,
-    paddingVertical: 50,
+    paddingVertical: 65,
     textAlign: 'center',
     color: '#fff',
     fontWeight: 'bold',
